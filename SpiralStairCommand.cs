@@ -46,23 +46,24 @@ namespace SpiralStairPlugin
                         {
                             var adjustedInput = inputModule.GetAdjustedInput(context.Document, parameters);
                             if (!adjustedInput.Submitted) return;
-                            input = validationModule.Validate(adjustedInput); // Re-validate adjusted input
+                            input = validationModule.Validate(adjustedInput);
                             continue;
                         }
-                        break; // Ignore case
+                        break;
                     }
-                    break; // Compliant case
+                    break;
                 } while (true);
 
-                // Step 5: Geometry Creation (commented out until implemented)
-                // IGeometryCreator centerPoleCreator = new CenterPoleModule();
+                // Step 5: Geometry Creation
+                IGeometryCreator centerPoleCreator = new CenterPoleModule();
+                var entities = new EntityCollection();
+                entities.AddRange(centerPoleCreator.Create(context.Document, parameters));
+
+                // Placeholder for remaining geometry modules
                 // IGeometryCreator treadCreator = new TreadModule(new TreadGeometry());
                 // IGeometryCreator midLandingCreator = new MidLandingModule(new MidLandingGeometry());
                 // IGeometryCreator topLandingCreator = new TopLandingModule(new TopLandingGeometry());
                 // IGeometryCreator handrailCreator = new HandrailModule(new HandrailGeometry());
-                //
-                // var entities = new EntityCollection();
-                // entities.AddRange(centerPoleCreator.Create(context.Document, parameters));
                 // entities.AddRange(treadCreator.Create(context.Document, parameters));
                 // if (parameters.MidlandingIndex >= 0)
                 //     entities.AddRange(midLandingCreator.Create(context.Document, parameters));
@@ -76,6 +77,18 @@ namespace SpiralStairPlugin
                 // Step 7: Output (commented out until implemented)
                 // IOutputModule outputModule = new OutputModule();
                 // outputModule.Finalize(context.Document, input, parameters, finalEntities);
+
+                // Persist entities to the drawing
+                using (var tr = context.Document.Database.TransactionManager.StartTransaction())
+                {
+                    var btr = (BlockTableRecord)tr.GetObject(context.Document.Database.CurrentSpaceId, OpenMode.ForWrite);
+                    foreach (var entity in entities.Entities)
+                    {
+                        btr.AppendEntity(entity);
+                        tr.AddNewlyCreatedDBObject(entity, true);
+                    }
+                    tr.Commit();
+                }
 
                 // Placeholder: Show calculated parameters
                 Application.ShowAlertDialog($"Calculated Parameters:\nTreads: {parameters.NumTreads}\nRiser Height: {parameters.RiserHeight:F2}\n" +

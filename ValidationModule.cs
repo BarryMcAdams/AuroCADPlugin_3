@@ -47,16 +47,16 @@ namespace SpiralStairPlugin
                 return validatedInput;
             }
 
-            // Validate Outside Diameter
+            // Validate Outside Diameter (updated max to 144")
             double minOutsideDia = validatedInput.CenterPoleDia + 10;
-            if (validatedInput.OutsideDia < minOutsideDia || validatedInput.OutsideDia > 120)
+            if (validatedInput.OutsideDia < minOutsideDia || validatedInput.OutsideDia > 144)
             {
                 validatedInput.IsValid = false;
-                validatedInput.ErrorMessage = $"Outside diameter must be between {minOutsideDia} and 120 inches.";
+                validatedInput.ErrorMessage = $"Outside diameter must be between {minOutsideDia} and 144 inches.";
                 return validatedInput;
             }
 
-            // Validate Rotation Degrees
+            // Validate Rotation Degrees (updated max to 900°)
             if (validatedInput.RotationDeg < 90 || validatedInput.RotationDeg > 1080)
             {
                 validatedInput.IsValid = false;
