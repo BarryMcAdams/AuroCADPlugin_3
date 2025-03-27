@@ -56,19 +56,18 @@ namespace SpiralStairPlugin
 
                 // Step 5: Geometry Creation
                 IGeometryCreator centerPoleCreator = new CenterPoleModule();
+                IGeometryCreator midLandingCreator = new MidLandingModule();
+                IGeometryCreator topLandingCreator = new TopLandingModule();
+                IGeometryCreator handrailCreator = new HandrailModule();
                 var entities = new EntityCollection();
                 entities.AddRange(centerPoleCreator.Create(context.Document, parameters));
+                entities.AddRange(midLandingCreator.Create(context.Document, parameters));
+                entities.AddRange(topLandingCreator.Create(context.Document, parameters));
+                entities.AddRange(handrailCreator.Create(context.Document, parameters));
 
-                // Placeholder for remaining geometry modules
+                // Placeholder for remaining geometry module
                 // IGeometryCreator treadCreator = new TreadModule(new TreadGeometry());
-                // IGeometryCreator midLandingCreator = new MidLandingModule(new MidLandingGeometry());
-                // IGeometryCreator topLandingCreator = new TopLandingModule(new TopLandingGeometry());
-                // IGeometryCreator handrailCreator = new HandrailModule(new HandrailGeometry());
                 // entities.AddRange(treadCreator.Create(context.Document, parameters));
-                // if (parameters.MidlandingIndex >= 0)
-                //     entities.AddRange(midLandingCreator.Create(context.Document, parameters));
-                // entities.AddRange(topLandingCreator.Create(context.Document, parameters));
-                // entities.AddRange(handrailCreator.Create(context.Document, parameters));
 
                 // Step 6: Post-Creation Tweaks (commented out until implemented)
                 // IPostCreationTweaksModule tweaksModule = new PostCreationTweaksModule();

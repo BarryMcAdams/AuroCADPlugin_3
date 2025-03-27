@@ -15,7 +15,7 @@ namespace SpiralStairPlugin
                 var centerPole = new Solid3d();
                 centerPole.Extrude(region, parameters.OverallHeight, 0);
                 centerPole.ColorIndex = 251; // Gray per flow chart
-                centerPole.TransformBy(Matrix3d.Displacement(new Vector3d(0, 0, parameters.OverallHeight / 2)));
+                // No displacement; bottom at Z=0, top at OverallHeight
 
                 return new Entity[] { centerPole };
             }
