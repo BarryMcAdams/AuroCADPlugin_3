@@ -19,20 +19,17 @@ namespace SpiralStairPlugin
 
                 // Step 2 & 3: Input and Validation with retry loop
                 IInputModule inputModule = new InputModule();
-                // IValidationModule validationModule = new ValidationModule(initializer.GetCenterPoleOptions());
-                StairInput input = null;
+                IValidationModule validationModule = new ValidationModule(initializer.GetCenterPoleOptions());
+                ValidatedStairInput input = null;
                 bool isValid = false;
                 do
                 {
-                    input = inputModule.GetInput(context.Document);
-                    if (!input.Submitted) return; // User aborted
+                    var rawInput = inputModule.GetInput(context.Document);
+                    if (!rawInput.Submitted) return; // User aborted
 
-                    // Placeholder: Validation not implemented yet
-                    // var validatedInput = validationModule.Validate(input);
-                    // isValid = validatedInput.IsValid;
-                    // if (!isValid) inputModule.ShowRetryPrompt(validatedInput.ErrorMessage);
-                    // input = validatedInput;
-                    isValid = true; // Temporary until ValidationModule is added
+                    input = validationModule.Validate(rawInput);
+                    isValid = input.IsValid;
+                    if (!isValid) inputModule.ShowRetryPrompt(input.ErrorMessage);
                 } while (!isValid);
 
                 // Step 4: Calculation with compliance check (commented out until implemented)
@@ -77,17 +74,17 @@ namespace SpiralStairPlugin
                 // IOutputModule outputModule = new OutputModule();
                 // outputModule.Finalize(context.Document, input, parameters, finalEntities);
 
-                // Placeholder: Just show input for now
-                Application.ShowAlertDialog($"Input received:\nCenter Pole Dia: {input.CenterPoleDia}\nHeight: {input.OverallHeight}\nOutside Dia: {input.OutsideDia}\nRotation: {input.RotationDeg}");
+                // Placeholder: Show validated input for now
+                Application.ShowAlertDialog($"Validated Input:\nCenter Pole Dia: {input.CenterPoleDia}\nHeight: {input.OverallHeight}\nOutside Dia: {input.OutsideDia}\nRotation: {input.RotationDeg}");
             }
-            catch (System.Exception ex) // Explicitly use System.Exception
+            catch (System.Exception ex)
             {
                 Application.ShowAlertDialog($"Error: {ex.Message}");
             }
         }
     }
 
-    // Interfaces for plug-n-play modularity
+    // Interfaces and DTOs unchanged from previous version
     public interface IInitializationModule
     {
         AutoCADContext Initialize();
@@ -127,7 +124,6 @@ namespace SpiralStairPlugin
         void Finalize(Document doc, ValidatedStairInput input, StairParameters parameters, EntityCollection entities);
     }
 
-    // Data Transfer Objects (DTOs)
     public class AutoCADContext
     {
         public Document Document { get; set; }
