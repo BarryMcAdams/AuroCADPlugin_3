@@ -25,31 +25,34 @@ namespace SpiralStairPlugin
                 do
                 {
                     var rawInput = inputModule.GetInput(context.Document);
-                    if (!rawInput.Submitted) return; // User aborted
+                    if (!rawInput.Submitted) return;
 
                     input = validationModule.Validate(rawInput);
                     isValid = input.IsValid;
                     if (!isValid) inputModule.ShowRetryPrompt(input.ErrorMessage);
                 } while (!isValid);
 
-                // Step 4: Calculation with compliance check (commented out until implemented)
-                // ICalculationModule calculationModule = new CalculationModule();
-                // StairParameters parameters = null;
-                // do
-                // {
-                //     parameters = calculationModule.Calculate(input);
-                //     if (!parameters.IsCompliant)
-                //     {
-                //         var retryOption = calculationModule.HandleComplianceFailure(parameters);
-                //         if (retryOption == ComplianceRetryOption.Abort) return;
-                //         if (retryOption == ComplianceRetryOption.Retry)
-                //         {
-                //             input = inputModule.GetAdjustedInput(context.Document, parameters);
-                //             continue;
-                //         }
-                //     }
-                //     break;
-                // } while (true);
+                // Step 4: Calculation with compliance check
+                ICalculationModule calculationModule = new CalculationModule();
+                StairParameters parameters = null;
+                do
+                {
+                    parameters = calculationModule.Calculate(input);
+                    if (!parameters.IsCompliant)
+                    {
+                        var retryOption = calculationModule.HandleComplianceFailure(parameters);
+                        if (retryOption == ComplianceRetryOption.Abort) return;
+                        if (retryOption == ComplianceRetryOption.Retry)
+                        {
+                            var adjustedInput = inputModule.GetAdjustedInput(context.Document, parameters);
+                            if (!adjustedInput.Submitted) return;
+                            input = validationModule.Validate(adjustedInput); // Re-validate adjusted input
+                            continue;
+                        }
+                        break; // Ignore case
+                    }
+                    break; // Compliant case
+                } while (true);
 
                 // Step 5: Geometry Creation (commented out until implemented)
                 // IGeometryCreator centerPoleCreator = new CenterPoleModule();
@@ -74,8 +77,10 @@ namespace SpiralStairPlugin
                 // IOutputModule outputModule = new OutputModule();
                 // outputModule.Finalize(context.Document, input, parameters, finalEntities);
 
-                // Placeholder: Show validated input for now
-                Application.ShowAlertDialog($"Validated Input:\nCenter Pole Dia: {input.CenterPoleDia}\nHeight: {input.OverallHeight}\nOutside Dia: {input.OutsideDia}\nRotation: {input.RotationDeg}");
+                // Placeholder: Show calculated parameters
+                Application.ShowAlertDialog($"Calculated Parameters:\nTreads: {parameters.NumTreads}\nRiser Height: {parameters.RiserHeight:F2}\n" +
+                                            $"Tread Angle: {parameters.TreadAngle:F2}\nWalkline Radius: {parameters.WalklineRadius:F2}\n" +
+                                            $"Clear Width: {parameters.ClearWidth:F2}\nMidlanding Index: {parameters.MidlandingIndex}");
             }
             catch (System.Exception ex)
             {
@@ -159,6 +164,11 @@ namespace SpiralStairPlugin
         public double WalklineRadius { get; set; }
         public double ClearWidth { get; set; }
         public int MidlandingIndex { get; set; }
+        public double CenterPoleDia { get; set; }
+        public double OverallHeight { get; set; }
+        public double OutsideDia { get; set; }
+        public double RotationDeg { get; set; }
+        public bool IsClockwise { get; set; }
         public bool IsCompliant { get; set; }
         public string ComplianceMessage { get; set; }
     }
