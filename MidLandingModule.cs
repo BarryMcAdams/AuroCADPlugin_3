@@ -1,4 +1,5 @@
-﻿using Autodesk.AutoCAD.ApplicationServices;
+﻿using System;
+using Autodesk.AutoCAD.ApplicationServices;
 using Autodesk.AutoCAD.DatabaseServices;
 using Autodesk.AutoCAD.Geometry;
 
@@ -10,33 +11,41 @@ namespace SpiralStairPlugin
         {
             if (parameters.MidlandingIndex < 0)
             {
-                return new Entity[0]; // No midlanding needed
+                return new Entity[0]; // No midlanding if height ≤ 151"
             }
 
-            double size = parameters.OutsideDia / 2;
-            double baseHeight = parameters.RiserHeight * (parameters.MidlandingIndex + 1); // Base at tread height
-            Point3d[] points = new Point3d[]
-            {
-                new Point3d(0, 0, baseHeight),
-                new Point3d(size, 0, baseHeight),
-                new Point3d(size, size, baseHeight),
-                new Point3d(0, size, baseHeight)
-            };
+            double radius = parameters.OutsideDia / 2; // 30 inches
+            double baseHeight = parameters.RiserHeight * (parameters.MidlandingIndex + 1); // e.g., 76 inches
+            int numSegments = 16; // Smoothness of arc
+            double startAngle = 0; // 0°
+            double endAngle = Math.PI / 2; // 90° in radians
 
             using (var pline = new Polyline())
             {
-                for (int i = 0; i < 4; i++)
-                    pline.AddVertexAt(i, new Point2d(points[i].X, points[i].Y), 0, 0, 0);
+                // Start at (radius, 0, baseHeight)
+                pline.AddVertexAt(0, new Point2d(radius, 0), 0, 0, 0);
+
+                // Arc from 0° to 90°
+                for (int i = 1; i <= numSegments; i++)
+                {
+                    double angle = startAngle + (endAngle - startAngle) * i / numSegments;
+                    double x = radius * Math.Cos(angle);
+                    double y = radius * Math.Sin(angle);
+                    pline.AddVertexAt(i, new Point2d(x, y), 0, 0, 0);
+                }
+
+                // Radial edges back to origin
+                pline.AddVertexAt(numSegments + 1, new Point2d(0, 0), 0, 0, 0);
                 pline.Closed = true;
-                pline.Elevation = baseHeight; // Explicitly set elevation to ensure Z-position
+                pline.Elevation = baseHeight; // Set Z-position
 
                 using (var regionCollection = Region.CreateFromCurves(new DBObjectCollection { pline }))
                 {
-                    if (regionCollection.Count == 0) return new Entity[0]; // Safety check
+                    if (regionCollection.Count == 0) return new Entity[0];
                     var region = (Region)regionCollection[0];
                     var midLanding = new Solid3d();
-                    midLanding.Extrude(region, 0.25, 0); // 0.25" height, top at baseHeight + 0.25
-                    midLanding.ColorIndex = 1; // Red per flow chart
+                    midLanding.Extrude(region, 0.25, 0); // 0.25" height for now
+                    midLanding.ColorIndex = 1; // Red
 
                     return new Entity[] { midLanding };
                 }

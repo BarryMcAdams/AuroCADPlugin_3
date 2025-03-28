@@ -58,17 +58,16 @@ namespace SpiralStairPlugin
                 IGeometryCreator centerPoleCreator = new CenterPoleModule();
                 IGeometryCreator midLandingCreator = new MidLandingModule();
                 IGeometryCreator topLandingCreator = new TopLandingModule();
-                IGeometryCreator handrailCreator = new HandrailModule();
+                // IGeometryCreator handrailCreator = new HandrailModule(); // Disabled for now
                 var entities = new EntityCollection();
                 entities.AddRange(centerPoleCreator.Create(context.Document, parameters));
                 entities.AddRange(midLandingCreator.Create(context.Document, parameters));
                 entities.AddRange(topLandingCreator.Create(context.Document, parameters));
-                entities.AddRange(handrailCreator.Create(context.Document, parameters));
+                // entities.AddRange(handrailCreator.Create(context.Document, parameters)); // Disabled for now
 
-                // Step 6: Post-Creation Tweaks (skipped for debug)
-                // IPostCreationTweaksModule tweaksModule = new PostCreationTweaksModule();
-                // var finalEntities = tweaksModule.ApplyTweaks(context.Document, entities);
-                var finalEntities = entities; // Bypass tweaks
+                // Step 6: Post-Creation Tweaks
+                IPostCreationTweaksModule tweaksModule = new PostCreationTweaksModule();
+                var finalEntities = tweaksModule.ApplyTweaks(context.Document, entities);
 
                 // Step 7: Output
                 IOutputModule outputModule = new OutputModule();

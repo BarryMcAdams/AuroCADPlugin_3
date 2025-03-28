@@ -9,10 +9,10 @@ namespace SpiralStairPlugin
         {
             var parameters = new StairParameters
             {
-                NumTreads = (int)Math.Ceiling(input.OverallHeight / 9.5),
+                NumTreads = (int)Math.Ceiling(input.OverallHeight / 9.5), // Max riser height 9.5"
                 WalklineRadius = input.CenterPoleDia / 2 + 12,
                 ClearWidth = (input.OutsideDia / 2) - (input.CenterPoleDia / 2) - 1.5,
-                MidlandingIndex = -1,
+                MidlandingIndex = -1, // Default: no midlanding
                 IsCompliant = true,
                 ComplianceMessage = string.Empty,
                 CenterPoleDia = input.CenterPoleDia,
@@ -43,9 +43,14 @@ namespace SpiralStairPlugin
                 return parameters;
             }
 
-            CheckMidlandingRequirement(parameters);
+            // Building Code: Midlanding required if height > 151"
+            if (parameters.OverallHeight > 151)
+            {
+                parameters.MidlandingIndex = parameters.NumTreads / 2; // Midpoint default
+                parameters.ComplianceMessage = $"Overall height exceeds 151 inches. Midlanding required at tread {parameters.MidlandingIndex + 1}.";
+            }
 
-            if (parameters.IsCompliant)
+            if (parameters.IsCompliant && parameters.MidlandingIndex >= 0)
             {
                 AdjustTreadAngleForMidlanding(parameters, input.IsClockwise);
             }
@@ -56,7 +61,7 @@ namespace SpiralStairPlugin
         public ComplianceRetryOption HandleComplianceFailure(StairParameters parameters)
         {
             Application.ShowAlertDialog($"{parameters.ComplianceMessage}\nProceeding will ignore this violation; retry to adjust inputs.");
-            return ComplianceRetryOption.Abort; // Simplified for now; we'll add retry options later
+            return ComplianceRetryOption.Abort; // Simplified for now
         }
 
         private bool CheckWalklineRadius(StairParameters parameters)
@@ -94,15 +99,6 @@ namespace SpiralStairPlugin
                 return false;
             }
             return true;
-        }
-
-        private void CheckMidlandingRequirement(StairParameters parameters)
-        {
-            if (parameters.OverallHeight > 151)
-            {
-                parameters.MidlandingIndex = parameters.NumTreads / 2;
-                parameters.ComplianceMessage = $"Overall height exceeds 151 inches. Midlanding required at tread {parameters.MidlandingIndex + 1}.";
-            }
         }
 
         private void AdjustTreadAngleForMidlanding(StairParameters parameters, bool isClockwise)
