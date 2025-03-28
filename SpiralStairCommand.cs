@@ -65,34 +65,26 @@ namespace SpiralStairPlugin
                 entities.AddRange(topLandingCreator.Create(context.Document, parameters));
                 entities.AddRange(handrailCreator.Create(context.Document, parameters));
 
-                // Placeholder for remaining geometry module
-                // IGeometryCreator treadCreator = new TreadModule(new TreadGeometry());
-                // entities.AddRange(treadCreator.Create(context.Document, parameters));
-
-                // Step 6: Post-Creation Tweaks (commented out until implemented)
+                // Step 6: Post-Creation Tweaks (skipped for debug)
                 // IPostCreationTweaksModule tweaksModule = new PostCreationTweaksModule();
                 // var finalEntities = tweaksModule.ApplyTweaks(context.Document, entities);
+                var finalEntities = entities; // Bypass tweaks
 
-                // Step 7: Output (commented out until implemented)
-                // IOutputModule outputModule = new OutputModule();
-                // outputModule.Finalize(context.Document, input, parameters, finalEntities);
+                // Step 7: Output
+                IOutputModule outputModule = new OutputModule();
+                outputModule.Finalize(context.Document, input, parameters, finalEntities);
 
                 // Persist entities to the drawing
                 using (var tr = context.Document.Database.TransactionManager.StartTransaction())
                 {
                     var btr = (BlockTableRecord)tr.GetObject(context.Document.Database.CurrentSpaceId, OpenMode.ForWrite);
-                    foreach (var entity in entities.Entities)
+                    foreach (var entity in finalEntities.Entities)
                     {
                         btr.AppendEntity(entity);
                         tr.AddNewlyCreatedDBObject(entity, true);
                     }
                     tr.Commit();
                 }
-
-                // Placeholder: Show calculated parameters
-                Application.ShowAlertDialog($"Calculated Parameters:\nTreads: {parameters.NumTreads}\nRiser Height: {parameters.RiserHeight:F2}\n" +
-                                            $"Tread Angle: {parameters.TreadAngle:F2}\nWalkline Radius: {parameters.WalklineRadius:F2}\n" +
-                                            $"Clear Width: {parameters.ClearWidth:F2}\nMidlanding Index: {parameters.MidlandingIndex}");
             }
             catch (System.Exception ex)
             {

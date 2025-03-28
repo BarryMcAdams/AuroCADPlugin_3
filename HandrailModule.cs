@@ -8,31 +8,43 @@ namespace SpiralStairPlugin
     {
         public Entity[] Create(Document doc, StairParameters parameters)
         {
-            double radius = parameters.OutsideDia / 2;
-            double handrailDia = 1; // 1" diameter handrail
-            double heightOffset = 36; // Handrail 36" above base
+            // Debug: Log incoming parameters
+            Application.ShowAlertDialog($"Handrail Input Params:\n" +
+                                        $"CenterPoleDia: {parameters.CenterPoleDia}\n" +
+                                        $"OverallHeight: {parameters.OverallHeight}\n" +
+                                        $"OutsideDia: {parameters.OutsideDia}\n" +
+                                        $"RotationDeg: {parameters.RotationDeg}\n" +
+                                        $"IsClockwise: {parameters.IsClockwise}");
 
-            using (var circle = new Circle(new Point3d(radius, 0, heightOffset), Vector3d.ZAxis, handrailDia / 2))
-            using (var regionCollection = Region.CreateFromCurves(new DBObjectCollection { circle }))
-            {
-                var region = (Region)regionCollection[0];
+            double radius = parameters.OutsideDia / 2; // 60 / 2 = 30 inches
+            double heightOffset = 36; // Handrail starts at Z=36 after move
+            double height = parameters.OverallHeight; // Should be 152 inches
+            double turns = parameters.RotationDeg / 360.0; // 450 / 360 = 1.25 turns
 
-                using (var helix = new Helix())
-                {
-                    helix.BaseRadius = radius;
-                    helix.TopRadius = radius;
-                    helix.Height = parameters.OverallHeight;
-                    helix.Turns = parameters.RotationDeg / 360.0;
-                    helix.StartPoint = new Point3d(radius, 0, heightOffset);
-                    helix.Twist = !parameters.IsClockwise; // True = counterclockwise, False = clockwise
+            // Step 1: Create helix at (0, 0, 0) with base/top diameter and height
+            var helix = new Helix();
+            helix.StartPoint = new Point3d(0, 0, 0); // Base point at origin
+            helix.BaseRadius = radius; // 30 inches
+            helix.TopRadius = radius; // 30 inches
+            helix.Height = height; // 152 inches
+            helix.ColorIndex = 2; // Yellow
 
-                    var handrail = new Solid3d();
-                    handrail.CreateSweptSolid(region, helix, new SweepOptions());
-                    handrail.ColorIndex = 2; // Yellow for visibility
+            // Step 2: Adjust turns to 1.25 (default is 3.0)
+            helix.Turns = turns; // 1.25 turns
 
-                    return new Entity[] { handrail };
-                }
-            }
+            // Step 3: Move helix to Z=36
+            helix.TransformBy(Matrix3d.Displacement(new Vector3d(0, 0, heightOffset)));
+
+            // Debug: Log helix properties after setting
+            Application.ShowAlertDialog($"Helix Created Params:\n" +
+                                        $"BaseRadius: {helix.BaseRadius}\n" +
+                                        $"TopRadius: {helix.TopRadius}\n" +
+                                        $"Height: {helix.Height}\n" +
+                                        $"Turns: {helix.Turns}\n" +
+                                        $"StartPoint: {helix.StartPoint}\n" +
+                                        $"Twist: {(helix.Twist ? "Counterclockwise" : "Clockwise")}");
+
+            return new Entity[] { helix };
         }
     }
 }
