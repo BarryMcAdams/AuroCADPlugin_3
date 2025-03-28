@@ -58,27 +58,46 @@ namespace SpiralStairPlugin
                 IGeometryCreator centerPoleCreator = new CenterPoleModule();
                 IGeometryCreator midLandingCreator = new MidLandingModule();
                 IGeometryCreator topLandingCreator = new TopLandingModule();
-                // IGeometryCreator handrailCreator = new HandrailModule(); // Disabled for now
+                IGeometryCreator treadCreator = new TreadModule();
                 var entities = new EntityCollection();
-                entities.AddRange(centerPoleCreator.Create(context.Document, parameters));
-                entities.AddRange(midLandingCreator.Create(context.Document, parameters));
-                entities.AddRange(topLandingCreator.Create(context.Document, parameters));
-                // entities.AddRange(handrailCreator.Create(context.Document, parameters)); // Disabled for now
 
-                // Step 6: Post-Creation Tweaks
-                IPostCreationTweaksModule tweaksModule = new PostCreationTweaksModule();
-                var finalEntities = tweaksModule.ApplyTweaks(context.Document, entities);
+                var centerPoleEntities = centerPoleCreator.Create(context.Document, parameters);
+                Application.ShowAlertDialog($"CenterPole Entities: {centerPoleEntities.Length}");
+                entities.AddRange(centerPoleEntities);
+
+                var midLandingEntities = midLandingCreator.Create(context.Document, parameters);
+                Application.ShowAlertDialog($"MidLanding Entities: {midLandingEntities.Length}");
+                entities.AddRange(midLandingEntities);
+
+                var topLandingEntities = topLandingCreator.Create(context.Document, parameters);
+                Application.ShowAlertDialog($"TopLanding Entities: {topLandingEntities.Length}");
+                entities.AddRange(topLandingEntities);
+
+                var treadEntities = treadCreator.Create(context.Document, parameters);
+                Application.ShowAlertDialog($"Tread Entities: {treadEntities.Length}");
+                entities.AddRange(treadEntities);
+
+                // Step 6: Post-Creation Tweaks (bypassed)
+                var finalEntities = entities;
 
                 // Step 7: Output
                 IOutputModule outputModule = new OutputModule();
                 outputModule.Finalize(context.Document, input, parameters, finalEntities);
 
                 // Persist entities to the drawing
+                Application.ShowAlertDialog($"Total Entities to Persist: {finalEntities.Entities.Count}");
                 using (var tr = context.Document.Database.TransactionManager.StartTransaction())
                 {
                     var btr = (BlockTableRecord)tr.GetObject(context.Document.Database.CurrentSpaceId, OpenMode.ForWrite);
-                    foreach (var entity in finalEntities.Entities)
+                    for (int i = 0; i < finalEntities.Entities.Count; i++)
                     {
+                        var entity = finalEntities.Entities[i];
+                        if (entity == null)
+                        {
+                            Application.ShowAlertDialog($"Entity {i} is null");
+                            continue;
+                        }
+                        Application.ShowAlertDialog($"Persisting Entity {i}: {entity.GetType().Name}");
                         btr.AppendEntity(entity);
                         tr.AddNewlyCreatedDBObject(entity, true);
                     }
