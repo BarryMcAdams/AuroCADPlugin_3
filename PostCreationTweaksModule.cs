@@ -41,7 +41,7 @@ namespace SpiralStairPlugin
                 btr.AppendEntity(mText);
                 tr.AddNewlyCreatedDBObject(mText, true);
 
-                // Mass properties
+                // Mass properties with aluminum density
                 double totalVolume = 0;
                 foreach (var entity in entities.Entities)
                 {
@@ -51,13 +51,13 @@ namespace SpiralStairPlugin
                         totalVolume += props.Volume;
                     }
                 }
-                double density = 0.283; // Steel, lb/in³
+                double density = 0.0975; // Aluminum, lb/in³
                 double totalWeight = totalVolume * density;
 
                 var massText = new MText
                 {
-                    Contents = $"Total Weight: {totalWeight:F2} lb (steel, density = {density} lb/in³)",
-                    Location = new Point3d(100, 5, 0), // Below 11 lines (50 - 11*2.5 - 2.5 = ~5)
+                    Contents = $"Total Weight: {totalWeight:F2} lb (aluminum, density = {density} lb/in³)",
+                    Location = new Point3d(100, -2.5, 0), // Lowered further
                     TextHeight = 2.5,
                     Attachment = AttachmentPoint.TopLeft
                 };

@@ -15,20 +15,12 @@ namespace SpiralStairPlugin
             }
 
             double radius = parameters.OutsideDia / 2; // 30 inches
-            double baseHeight = parameters.RiserHeight * (parameters.MidlandingIndex + 1) - 0.25; // 9 * 9.5 - 0.25 = 85.25
-            double startAngle = parameters.TreadAngle * parameters.MidlandingIndex; // 8 * 25.71 = 205.68°
+            double baseHeight = parameters.RiserHeight * (parameters.MidlandingIndex + 1) - 0.25; // e.g., 85.25
+            double startAngle = parameters.TreadAngle * parameters.MidlandingIndex; // e.g., 205.68°
             double endAngle = startAngle - 90; // 115.68° (CW 90°)
             int numSegments = 16; // Smoothness of arc
             double startRad = startAngle * Math.PI / 180;
             double endRad = endAngle * Math.PI / 180;
-
-            Application.ShowAlertDialog($"MidLanding Specs:\n" +
-                                        $"OverallHeight: {parameters.OverallHeight}\n" +
-                                        $"OutsideDia: {parameters.OutsideDia}\n" +
-                                        $"TreadAngle: {parameters.TreadAngle}\n" +
-                                        $"NumTreads: {parameters.NumTreads}\n" +
-                                        $"MidlandingIndex: {parameters.MidlandingIndex}\n" +
-                                        $"BaseHeight: {baseHeight}");
 
             using (var pline = new Polyline())
             {
@@ -47,7 +39,7 @@ namespace SpiralStairPlugin
                     if (regionCollection.Count == 0) return new Entity[0];
                     var region = (Region)regionCollection[0];
                     var midLanding = new Solid3d();
-                    midLanding.Extrude(region, 0.25, 0); // Top at 85.5
+                    midLanding.Extrude(region, 0.25, 0); // 0.25" height
                     midLanding.ColorIndex = 1; // Red
 
                     return new Entity[] { midLanding };
