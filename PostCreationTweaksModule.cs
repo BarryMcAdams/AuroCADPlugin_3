@@ -26,8 +26,6 @@ namespace SpiralStairPlugin
                     layerTable.Add(newLayer);
                     tr.AddNewlyCreatedDBObject(newLayer, true);
                 }
-
-                // Set "Text" as current layer
                 doc.Database.Clayer = layerTable[layerName];
 
                 // Calculate walkline distance
@@ -48,7 +46,7 @@ namespace SpiralStairPlugin
                 double totalWeight = totalVolume * density;
 
                 // Stair info as MText
-                string stairInfo = $"Spiral Stair Info:\n" +
+                string stairInfo = $"Staircase Info:\n" +
                                    $"Center Pole Dia: {input.CenterPoleDia:F2} in\n" +
                                    $"Overall Height: {input.OverallHeight:F2} in\n" +
                                    $"Outside Dia: {input.OutsideDia:F2} in\n" +
@@ -59,7 +57,7 @@ namespace SpiralStairPlugin
                                    $"Walkline Radius: {parameters.WalklineRadius:F2} in\n" +
                                    $"Walkline Distance: {walklineDistance:F2} in\n" +
                                    $"Clear Width: {parameters.ClearWidth:F2} in\n" +
-                                   $"Mid-landing: {(parameters.MidlandingIndex >= 0 ? $"Tread {parameters.MidlandingIndex + 1}" : "None")}";
+                                   $"Midlanding: {(parameters.MidlandingIndex >= 0 ? $"Tread {parameters.MidlandingIndex + 1}" : "None")}";
                 if (!parameters.IsCompliant && !string.IsNullOrEmpty(parameters.ComplianceMessage))
                     stairInfo += $"\nCode Violations:\n{parameters.ComplianceMessage}";
                 stairInfo += $"\nTotal Weight: {totalWeight:F2} lb (aluminum, density = {density} lb/in³)";
@@ -70,7 +68,7 @@ namespace SpiralStairPlugin
                     Location = new Point3d(100, 50, 0),
                     TextHeight = 2.5,
                     Attachment = AttachmentPoint.TopLeft,
-                    Layer = layerName // Explicitly assign to "Text" layer
+                    Layer = layerName
                 };
                 btr.AppendEntity(mText);
                 tr.AddNewlyCreatedDBObject(mText, true);

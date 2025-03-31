@@ -19,9 +19,8 @@ namespace SpiralStairPlugin
         public bool IsClockwise => chkClockwise.Checked;
         public bool Submitted { get; private set; }
 
-        public StairInputForm()
+        public StairInputForm(double? suggestedPoleDia = null, double? suggestedHeight = null, double? suggestedOutsideDia = null, double? suggestedRotation = null)
         {
-            // Form setup
             this.Text = "Spiral Stair Input";
             this.Size = new System.Drawing.Size(300, 400);
             this.FormBorderStyle = FormBorderStyle.FixedDialog;
@@ -34,11 +33,11 @@ namespace SpiralStairPlugin
             Label lblRotationDeg = new Label { Text = "Rotation Degree:", Location = new System.Drawing.Point(20, 140), AutoSize = true };
             Label lblClockwise = new Label { Text = "Clockwise:", Location = new System.Drawing.Point(20, 180), AutoSize = true };
 
-            // TextBoxes
-            txtCenterPoleDia = new TextBox { Location = new System.Drawing.Point(150, 20), Size = new System.Drawing.Size(100, 20), Text = "5" };
-            txtOverallHeight = new TextBox { Location = new System.Drawing.Point(150, 60), Size = new System.Drawing.Size(100, 20), Text = "152" };
-            txtOutsideDia = new TextBox { Location = new System.Drawing.Point(150, 100), Size = new System.Drawing.Size(100, 20), Text = "60" };
-            txtRotationDeg = new TextBox { Location = new System.Drawing.Point(150, 140), Size = new System.Drawing.Size(100, 20), Text = "450" };
+            // TextBoxes with center justification
+            txtCenterPoleDia = new TextBox { Location = new System.Drawing.Point(150, 20), Size = new System.Drawing.Size(100, 20), Text = suggestedPoleDia?.ToString("F2") ?? "5", TextAlign = HorizontalAlignment.Center };
+            txtOverallHeight = new TextBox { Location = new System.Drawing.Point(150, 60), Size = new System.Drawing.Size(100, 20), Text = suggestedHeight?.ToString("F2") ?? "152", TextAlign = HorizontalAlignment.Center };
+            txtOutsideDia = new TextBox { Location = new System.Drawing.Point(150, 100), Size = new System.Drawing.Size(100, 20), Text = suggestedOutsideDia?.ToString("F2") ?? "60", TextAlign = HorizontalAlignment.Center };
+            txtRotationDeg = new TextBox { Location = new System.Drawing.Point(150, 140), Size = new System.Drawing.Size(100, 20), Text = suggestedRotation?.ToString("F2") ?? "450", TextAlign = HorizontalAlignment.Center };
 
             // CheckBox
             chkClockwise = new CheckBox { Location = new System.Drawing.Point(150, 180), Size = new System.Drawing.Size(100, 20), Text = "Clockwise", Checked = true };
@@ -46,6 +45,7 @@ namespace SpiralStairPlugin
             // Button
             btnSubmit = new Button { Text = "Submit", Location = new System.Drawing.Point(100, 220), Size = new System.Drawing.Size(100, 30) };
             btnSubmit.Click += new EventHandler(btnSubmit_Click);
+            this.AcceptButton = btnSubmit; // Enter key triggers submit
 
             // Add controls to form
             this.Controls.AddRange(new Control[] { lblCenterPoleDia, lblOverallHeight, lblOutsideDia, lblRotationDeg, lblClockwise,
