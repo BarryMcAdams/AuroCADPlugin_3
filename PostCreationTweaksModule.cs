@@ -12,6 +12,23 @@ namespace SpiralStairPlugin
             using (var tr = doc.Database.TransactionManager.StartTransaction())
             {
                 var btr = (BlockTableRecord)tr.GetObject(doc.Database.CurrentSpaceId, OpenMode.ForWrite);
+                var layerTable = (LayerTable)tr.GetObject(doc.Database.LayerTableId, OpenMode.ForWrite);
+
+                // Create or get "Text" layer
+                string layerName = "Text";
+                if (!layerTable.Has(layerName))
+                {
+                    var newLayer = new LayerTableRecord
+                    {
+                        Name = layerName,
+                        Color = Autodesk.AutoCAD.Colors.Color.FromColorIndex(Autodesk.AutoCAD.Colors.ColorMethod.ByAci, 7) // Black
+                    };
+                    layerTable.Add(newLayer);
+                    tr.AddNewlyCreatedDBObject(newLayer, true);
+                }
+
+                // Set "Text" as current layer
+                doc.Database.Clayer = layerTable[layerName];
 
                 // Calculate walkline distance
                 double walklineRadius = (parameters.CenterPoleDia / 2) + 12;
@@ -31,7 +48,7 @@ namespace SpiralStairPlugin
                 double totalWeight = totalVolume * density;
 
                 // Stair info as MText
-                string stairInfo = $"Staircase Info:\n" +
+                string stairInfo = $"Spiral Stair Info:\n" +
                                    $"Center Pole Dia: {input.CenterPoleDia:F2} in\n" +
                                    $"Overall Height: {input.OverallHeight:F2} in\n" +
                                    $"Outside Dia: {input.OutsideDia:F2} in\n" +
@@ -42,7 +59,7 @@ namespace SpiralStairPlugin
                                    $"Walkline Radius: {parameters.WalklineRadius:F2} in\n" +
                                    $"Walkline Distance: {walklineDistance:F2} in\n" +
                                    $"Clear Width: {parameters.ClearWidth:F2} in\n" +
-                                   $"Midlanding: {(parameters.MidlandingIndex >= 0 ? $"Tread {parameters.MidlandingIndex + 1}" : "None")}";
+                                   $"Mid-landing: {(parameters.MidlandingIndex >= 0 ? $"Tread {parameters.MidlandingIndex + 1}" : "None")}";
                 if (!parameters.IsCompliant && !string.IsNullOrEmpty(parameters.ComplianceMessage))
                     stairInfo += $"\nCode Violations:\n{parameters.ComplianceMessage}";
                 stairInfo += $"\nTotal Weight: {totalWeight:F2} lb (aluminum, density = {density} lb/in³)";
@@ -52,7 +69,8 @@ namespace SpiralStairPlugin
                     Contents = stairInfo,
                     Location = new Point3d(100, 50, 0),
                     TextHeight = 2.5,
-                    Attachment = AttachmentPoint.TopLeft
+                    Attachment = AttachmentPoint.TopLeft,
+                    Layer = layerName // Explicitly assign to "Text" layer
                 };
                 btr.AppendEntity(mText);
                 tr.AddNewlyCreatedDBObject(mText, true);
