@@ -2,6 +2,7 @@
 using Autodesk.AutoCAD.ApplicationServices;
 using Autodesk.AutoCAD.DatabaseServices;
 using Autodesk.AutoCAD.Runtime;
+using System.Windows.Forms;
 
 namespace SpiralStairPlugin
 {
@@ -46,6 +47,7 @@ namespace SpiralStairPlugin
                             input = validationModule.Validate(adjustedInput);
                             continue;
                         }
+                        // Ignore: proceed with non-compliant stair
                         break;
                     }
                     break;
@@ -84,11 +86,12 @@ namespace SpiralStairPlugin
             }
             catch (System.Exception ex)
             {
-                Application.ShowAlertDialog($"Error: {ex.Message}");
+                Autodesk.AutoCAD.ApplicationServices.Application.ShowAlertDialog($"Error: {ex.Message}");
             }
         }
     }
 
+    // Interfaces and DTOs unchanged below...
     public interface IInitializationModule { AutoCADContext Initialize(); CenterPoleOptions GetCenterPoleOptions(); }
     public interface IInputModule { StairInput GetInput(Document doc); void ShowRetryPrompt(string errorMessage); StairInput GetAdjustedInput(Document doc, StairParameters parameters); }
     public interface IValidationModule { ValidatedStairInput Validate(StairInput input); }

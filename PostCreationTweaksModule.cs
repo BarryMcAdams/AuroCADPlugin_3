@@ -17,6 +17,19 @@ namespace SpiralStairPlugin
                 double walklineRadius = (parameters.CenterPoleDia / 2) + 12;
                 double walklineDistance = walklineRadius * (parameters.TreadAngle * Math.PI / 180);
 
+                // Calculate total weight
+                double totalVolume = 0;
+                foreach (var entity in entities.Entities)
+                {
+                    if (entity is Solid3d solid)
+                    {
+                        var props = solid.MassProperties;
+                        totalVolume += props.Volume;
+                    }
+                }
+                double density = 0.0975; // Aluminum, lb/in³
+                double totalWeight = totalVolume * density;
+
                 // Stair info as MText
                 string stairInfo = $"Staircase Info:\n" +
                                    $"Center Pole Dia: {input.CenterPoleDia:F2} in\n" +
@@ -30,6 +43,9 @@ namespace SpiralStairPlugin
                                    $"Walkline Distance: {walklineDistance:F2} in\n" +
                                    $"Clear Width: {parameters.ClearWidth:F2} in\n" +
                                    $"Midlanding: {(parameters.MidlandingIndex >= 0 ? $"Tread {parameters.MidlandingIndex + 1}" : "None")}";
+                if (!parameters.IsCompliant && !string.IsNullOrEmpty(parameters.ComplianceMessage))
+                    stairInfo += $"\nCode Violations:\n{parameters.ComplianceMessage}";
+                stairInfo += $"\nTotal Weight: {totalWeight:F2} lb (aluminum, density = {density} lb/in³)";
 
                 var mText = new MText
                 {
@@ -40,29 +56,6 @@ namespace SpiralStairPlugin
                 };
                 btr.AppendEntity(mText);
                 tr.AddNewlyCreatedDBObject(mText, true);
-
-                // Mass properties with aluminum density
-                double totalVolume = 0;
-                foreach (var entity in entities.Entities)
-                {
-                    if (entity is Solid3d solid)
-                    {
-                        var props = solid.MassProperties;
-                        totalVolume += props.Volume;
-                    }
-                }
-                double density = 0.0975; // Aluminum, lb/in³
-                double totalWeight = totalVolume * density;
-
-                var massText = new MText
-                {
-                    Contents = $"Total Weight: {totalWeight:F2} lb (aluminum, density = {density} lb/in³)",
-                    Location = new Point3d(100, -2.5, 0), // Lowered further
-                    TextHeight = 2.5,
-                    Attachment = AttachmentPoint.TopLeft
-                };
-                btr.AppendEntity(massText);
-                tr.AddNewlyCreatedDBObject(massText, true);
 
                 tr.Commit();
             }
