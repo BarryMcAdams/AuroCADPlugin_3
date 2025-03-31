@@ -29,7 +29,7 @@ namespace SpiralStairPlugin
             parameters.RiserHeight = parameters.OverallHeight / parameters.NumTreads;
             parameters.TreadAngle = parameters.MidlandingIndex >= 0 ? (parameters.RotationDeg - 90) / (parameters.NumTreads - 2) : parameters.RotationDeg / (parameters.NumTreads - 1);
             parameters.WalklineRadius = (parameters.CenterPoleDia / 2) + 12;
-            parameters.ClearWidth = (parameters.OutsideDia / 2) - (parameters.CenterPoleDia / 2) - 1.5;
+            parameters.ClearWidth = (parameters.OutsideDia / 2) - 1.5 - (parameters.CenterPoleDia / 2); // OutsideRadius - 1.5" - CenterPoleRadius
 
             double walklineWidth = parameters.WalklineRadius * (parameters.TreadAngle * Math.PI / 180);
             parameters.IsCompliant = walklineWidth >= 6.75 && parameters.ClearWidth >= 26 && parameters.OverallHeight <= 78 * parameters.NumTreads;
@@ -57,7 +57,7 @@ namespace SpiralStairPlugin
             }
             if (parameters.ClearWidth < 26)
             {
-                double requiredOutsideDia = (26 + (parameters.CenterPoleDia / 2) + 1.5) * 2;
+                double requiredOutsideDia = (26 + 1.5 + (parameters.CenterPoleDia / 2)) * 2;
                 parameters.ComplianceMessage += $"R311.7.10.1: Clear width {parameters.ClearWidth:F2} in < 26 in\n\n" +
                                                 $"RECOMMENDATION: Increase outside diameter to {requiredOutsideDia:F2} in\n";
                 suggestedOutsideDia = requiredOutsideDia;
