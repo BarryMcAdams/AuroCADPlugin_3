@@ -44,7 +44,8 @@ namespace SpiralStairPlugin
             {
                 double requiredRadius = 6.75 / (parameters.TreadAngle * Math.PI / 180);
                 double requiredPoleDia = (requiredRadius - 12) * 2;
-                var nextPipe = availablePipeSizes.FirstOrDefault(p => p.size >= requiredPoleDia);
+                var currentPipeIndex = Array.FindIndex(availablePipeSizes, p => Math.Abs(p.size - input.CenterPoleDia) < 0.01);
+                var nextPipe = availablePipeSizes.Skip(currentPipeIndex + 1).FirstOrDefault(p => p.size > requiredPoleDia);
                 double nextPipeDia = nextPipe.size > 0 ? nextPipe.size : availablePipeSizes.Last().size;
                 string nextPipeType = nextPipe.size > 0 ? nextPipe.type : availablePipeSizes.Last().type;
                 double requiredRotation = parameters.MidlandingIndex >= 0 ? (6.75 / parameters.WalklineRadius * 180 / Math.PI) * (parameters.NumTreads - 2) + 90 : (6.75 / parameters.WalklineRadius * 180 / Math.PI) * (parameters.NumTreads - 1);
@@ -86,7 +87,7 @@ namespace SpiralStairPlugin
                 case DialogResult.Abort: return ComplianceRetryOption.Abort;
                 case DialogResult.Retry: return ComplianceRetryOption.Retry;
                 case DialogResult.Ignore: return ComplianceRetryOption.Ignore;
-                default: return ComplianceRetryOption.Abort; // Fallback
+                default: return ComplianceRetryOption.Abort;
             }
         }
     }

@@ -1,6 +1,7 @@
 using Autodesk.AutoCAD.ApplicationServices;
 using System.Windows.Forms;
 using System.Linq;
+using System;
 
 namespace SpiralStairPlugin
 {
@@ -14,7 +15,7 @@ namespace SpiralStairPlugin
             {
                 form.ShowDialog();
                 StairInput input = ValidateInput(form);
-                if (!input.Submitted) return input; // Cancelled
+                if (!input.Submitted) return input;
                 return input;
             }
         }
@@ -30,7 +31,7 @@ namespace SpiralStairPlugin
             {
                 form.ShowDialog();
                 StairInput input = ValidateInput(form);
-                if (!input.Submitted) return input; // Cancelled
+                if (!input.Submitted) return input;
                 return input;
             }
         }
@@ -47,14 +48,14 @@ namespace SpiralStairPlugin
                 Submitted = form.Submitted
             };
 
-            if (input.Submitted && !availablePipeSizes.Contains(input.CenterPoleDia))
+            if (input.Submitted && !availablePipeSizes.Any(size => Math.Abs(size - input.CenterPoleDia) < 0.01))
             {
                 string pipeList = string.Join(", ", availablePipeSizes.Select(size => $"{size}\""));
                 string message = $"Center pole diameter {input.CenterPoleDia:F2}\" is not a standard size.\n" +
                                  $"Available sizes: {pipeList}\n\n" +
                                  "Use Anyway: Proceed with custom size\nRetry: Re-enter a standard size";
-                DialogResult result = MessageBox.Show(message, "Non-Standard Size", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning);
-                if (result == DialogResult.Cancel)
+                DialogResult result = MessageBox.Show(message, "Non-Standard Size", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+                if (result == DialogResult.No)
                 {
                     input.Submitted = false; // Retry
                 }
