@@ -7,7 +7,7 @@ namespace SpiralStairPlugin
 {
     public class SpiralStairCommand
     {
-        [CommandMethod("CreateSpiralStair")]
+        [CommandMethod("CREATESPIRAL")]
         public void Execute()
         {
             try
@@ -62,7 +62,8 @@ namespace SpiralStairPlugin
                 entities.AddRange(topLandingCreator.Create(context.Document, parameters));
                 entities.AddRange(treadCreator.Create(context.Document, parameters));
 
-                var finalEntities = entities; // Tweaks bypassed
+                IPostCreationTweaksModule tweaksModule = new PostCreationTweaksModule();
+                var finalEntities = tweaksModule.ApplyTweaks(context.Document, entities, input, parameters);
 
                 IOutputModule outputModule = new OutputModule();
                 outputModule.Finalize(context.Document, input, parameters, finalEntities);
@@ -88,13 +89,12 @@ namespace SpiralStairPlugin
         }
     }
 
-    // Interfaces and DTOs unchanged
     public interface IInitializationModule { AutoCADContext Initialize(); CenterPoleOptions GetCenterPoleOptions(); }
     public interface IInputModule { StairInput GetInput(Document doc); void ShowRetryPrompt(string errorMessage); StairInput GetAdjustedInput(Document doc, StairParameters parameters); }
     public interface IValidationModule { ValidatedStairInput Validate(StairInput input); }
     public interface ICalculationModule { StairParameters Calculate(ValidatedStairInput input); ComplianceRetryOption HandleComplianceFailure(StairParameters parameters); }
     public interface IGeometryCreator { Entity[] Create(Document doc, StairParameters parameters); }
-    public interface IPostCreationTweaksModule { EntityCollection ApplyTweaks(Document doc, EntityCollection entities); }
+    public interface IPostCreationTweaksModule { EntityCollection ApplyTweaks(Document doc, EntityCollection entities, ValidatedStairInput input, StairParameters parameters); }
     public interface IOutputModule { void Finalize(Document doc, ValidatedStairInput input, StairParameters parameters, EntityCollection entities); }
     public class AutoCADContext { public Document Document { get; set; } }
     public class CenterPoleOptions { public double[] Diameters { get; set; } public string[] Labels { get; set; } }
