@@ -8,7 +8,7 @@ namespace SpiralStairPlugin
         public void Finalize(Document doc, ValidatedStairInput input, StairParameters parameters, EntityCollection entities)
         {
             doc.Editor.Regen();
-            doc.Editor.Command("ZOOM", "E"); // Workaround for ZoomExtents
+            doc.Editor.Command("ZOOM", "E");
 
             string message = $"Staircase created successfully!\n" +
                              $"Center Pole Dia: {input.CenterPoleDia:F2} in\n" +
