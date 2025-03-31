@@ -3,33 +3,54 @@ using System.Windows.Forms;
 
 namespace SpiralStairPlugin
 {
-    public partial class StairInputForm : Form
+    public class StairInputForm : Form
     {
-<<<<<<< HEAD
-        public double CenterPoleDia => double.Parse(txtCenterPoleDia.Text);
-        public double OverallHeight => double.Parse(txtOverallHeight.Text);
-        public double OutsideDia => double.Parse(txtOutsideDia.Text);
-        public double RotationDeg => double.Parse(txtRotationDeg.Text);
-=======
+        private TextBox txtCenterPoleDia;
+        private TextBox txtOverallHeight;
+        private TextBox txtOutsideDia;
+        private TextBox txtRotationDeg;
+        private CheckBox chkClockwise;
+        private Button btnSubmit;
+
         public double CenterPoleDia => double.TryParse(txtCenterPoleDia.Text, out double val) ? val : 5;
         public double OverallHeight => double.TryParse(txtOverallHeight.Text, out double val) ? val : 152;
         public double OutsideDia => double.TryParse(txtOutsideDia.Text, out double val) ? val : 60;
         public double RotationDeg => double.TryParse(txtRotationDeg.Text, out double val) ? val : 450;
->>>>>>> 4d29bcbe81dff028fcabfbae03d247807fc17421
         public bool IsClockwise => chkClockwise.Checked;
         public bool Submitted { get; private set; }
 
         public StairInputForm()
         {
-            InitializeComponent();
-<<<<<<< HEAD
-=======
-            txtCenterPoleDia.Text = "5";
-            txtOverallHeight.Text = "152";
-            txtOutsideDia.Text = "60";
-            txtRotationDeg.Text = "450";
-            chkClockwise.Checked = true;
->>>>>>> 4d29bcbe81dff028fcabfbae03d247807fc17421
+            // Form setup
+            this.Text = "Spiral Stair Input";
+            this.Size = new System.Drawing.Size(300, 400);
+            this.FormBorderStyle = FormBorderStyle.FixedDialog;
+            this.MaximizeBox = false;
+
+            // Labels
+            Label lblCenterPoleDia = new Label { Text = "Center Pole Diameter:", Location = new System.Drawing.Point(20, 20), AutoSize = true };
+            Label lblOverallHeight = new Label { Text = "Overall Height:", Location = new System.Drawing.Point(20, 60), AutoSize = true };
+            Label lblOutsideDia = new Label { Text = "Outside Diameter:", Location = new System.Drawing.Point(20, 100), AutoSize = true };
+            Label lblRotationDeg = new Label { Text = "Rotation Degree:", Location = new System.Drawing.Point(20, 140), AutoSize = true };
+            Label lblClockwise = new Label { Text = "Clockwise:", Location = new System.Drawing.Point(20, 180), AutoSize = true };
+
+            // TextBoxes
+            txtCenterPoleDia = new TextBox { Location = new System.Drawing.Point(150, 20), Size = new System.Drawing.Size(100, 20), Text = "5" };
+            txtOverallHeight = new TextBox { Location = new System.Drawing.Point(150, 60), Size = new System.Drawing.Size(100, 20), Text = "152" };
+            txtOutsideDia = new TextBox { Location = new System.Drawing.Point(150, 100), Size = new System.Drawing.Size(100, 20), Text = "60" };
+            txtRotationDeg = new TextBox { Location = new System.Drawing.Point(150, 140), Size = new System.Drawing.Size(100, 20), Text = "450" };
+
+            // CheckBox
+            chkClockwise = new CheckBox { Location = new System.Drawing.Point(150, 180), Size = new System.Drawing.Size(100, 20), Text = "Clockwise", Checked = true };
+
+            // Button
+            btnSubmit = new Button { Text = "Submit", Location = new System.Drawing.Point(100, 220), Size = new System.Drawing.Size(100, 30) };
+            btnSubmit.Click += new EventHandler(btnSubmit_Click);
+
+            // Add controls to form
+            this.Controls.AddRange(new Control[] { lblCenterPoleDia, lblOverallHeight, lblOutsideDia, lblRotationDeg, lblClockwise,
+                                                  txtCenterPoleDia, txtOverallHeight, txtOutsideDia, txtRotationDeg,
+                                                  chkClockwise, btnSubmit });
         }
 
         private void btnSubmit_Click(object sender, EventArgs e)
