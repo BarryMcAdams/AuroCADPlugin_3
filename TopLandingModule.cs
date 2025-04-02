@@ -33,9 +33,9 @@ namespace SpiralStairPlugin
             Point3d ptA_3d = new Point3d(0, 0, baseHeight); // Center of center pole
             Point3d ptB_3d = new Point3d(outerRadius * cosExit, outerRadius * sinExit, baseHeight); // Left edge at tread #15’s left edge
 
-            // Tangent direction (90° counterclockwise from radial for clockwise stairs to correct orientation)
-            double tangentDirX = parameters.IsClockwise ? -sinExit : sinExit;
-            double tangentDirY = parameters.IsClockwise ? cosExit : -cosExit;
+            // Tangent direction (90° clockwise from radial for clockwise stairs to extend inline with tread flow)
+            double tangentDirX = parameters.IsClockwise ? sinExit : -sinExit;
+            double tangentDirY = parameters.IsClockwise ? -cosExit : cosExit;
 
             // Offset by 50 units to form the right edge (ptD_3d to ptC_3d)
             Point3d ptD_3d = new Point3d(
@@ -49,7 +49,7 @@ namespace SpiralStairPlugin
                 baseHeight
             );
 
-            // Create the four lines
+            // Create the four lines in clockwise order to match tread flow
             Entity[] createdEntities = new Entity[0];
             using (Transaction tr = doc.Database.TransactionManager.StartTransaction())
             {
