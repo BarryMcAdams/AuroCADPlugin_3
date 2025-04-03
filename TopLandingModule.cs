@@ -15,7 +15,7 @@ namespace AuroCADPlugin_3
 
             double outerRadius = parameters.OutsideDia / 2.0; // e.g., 36"
             double baseHeight = parameters.OverallHeight; // Z = 144 (top of stair)
-            // Use RotationDeg directly as the total rotation (tread #15’s left edge)
+            // Use RotationDeg as the total rotation (tread #15’s left edge)
             double exitAngleRad = parameters.RotationDeg * Math.PI / 180.0 * (parameters.IsClockwise ? -1 : 1);
 
             // Precompute sine and cosine
