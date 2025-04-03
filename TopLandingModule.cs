@@ -13,10 +13,10 @@ namespace AuroCADPlugin_3
             if (doc == null) throw new ArgumentNullException(nameof(doc));
             if (parameters == null) throw new ArgumentNullException(nameof(parameters));
 
-            double outerRadius = parameters.OutsideDia / 2.0; // e.g., 36"
-            double baseHeight = parameters.OverallHeight; // Z = 144 (top of stair)
-            // Use RotationDeg as the total rotation (tread #15’s left edge)
-            double exitAngleRad = parameters.RotationDeg * Math.PI / 180.0 * (parameters.IsClockwise ? -1 : 1);
+            double outerRadius = parameters.OuterRadius; // e.g., 36"
+            double baseHeight = parameters.FloorHeight; // Z = 144 (top of stair)
+            // Use TotalRotation as the total rotation (tread #15’s left edge)
+            double exitAngleRad = parameters.TotalRotation * Math.PI / 180.0 * (parameters.IsClockwise ? -1 : 1);
 
             // Precompute sine and cosine
             double cosExit = Math.Cos(exitAngleRad);

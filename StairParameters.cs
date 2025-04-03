@@ -19,6 +19,7 @@ namespace AuroCADPlugin_3 // Ensure this namespace matches your project
         // Rotation
         public double TreadRotation { get; private set; } // Rotation per tread in degrees (Calculated)
         public double TotalRotation { get; set; } = 300.0; // Total rotation in degrees (Primary input)
+        public bool IsClockwise { get; set; } = true; // Added to indicate rotation direction (true for clockwise)
 
         // Landing Parameters
         public double FloorHeight { get; private set; } // Z-level of the floor/landing top surface (Calculated from TotalRise)
