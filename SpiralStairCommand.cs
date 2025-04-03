@@ -102,26 +102,6 @@ namespace SpiralStairPlugin
     public class CenterPoleOptions { public double[] Diameters { get; set; } public string[] Labels { get; set; } }
     public class StairInput { public double CenterPoleDia { get; set; } public double OverallHeight { get; set; } public double OutsideDia { get; set; } public double RotationDeg { get; set; } public bool IsClockwise { get; set; } public bool Submitted { get; set; } }
     public class ValidatedStairInput : StairInput { public bool IsValid { get; set; } public string ErrorMessage { get; set; } }
-    public class StairParameters
-    {
-        public int NumTreads { get; set; }
-        public double RiserHeight { get; set; }
-        public double TreadAngle { get; set; }
-        public double WalklineRadius { get; set; }
-        public double ClearWidth { get; set; }
-        public int MidlandingIndex { get; set; }
-        public double CenterPoleDia { get; set; }
-        public double OverallHeight { get; set; }
-        public double OutsideDia { get; set; }
-        public double RotationDeg { get; set; }
-        public bool IsClockwise { get; set; }
-        public bool IsCompliant { get; set; }
-        public string ComplianceMessage { get; set; }
-        public double? SuggestedPoleDia { get; set; }
-        public double? SuggestedOutsideDia { get; set; }
-        public double? SuggestedRotation { get; set; }
-        public double? SuggestedHeight { get; set; }
-    }
     public enum ComplianceRetryOption { Retry, Ignore, Abort }
     public class EntityCollection { public List<Entity> Entities { get; } = new List<Entity>(); public void Add(Entity entity) => Entities.Add(entity); public void AddRange(Entity[] entities) => Entities.AddRange(entities); }
 }

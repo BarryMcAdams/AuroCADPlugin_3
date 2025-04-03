@@ -2,9 +2,8 @@
 using Autodesk.AutoCAD.ApplicationServices;
 using Autodesk.AutoCAD.DatabaseServices;
 using Autodesk.AutoCAD.Geometry;
-using SpiralStairPlugin;
 
-namespace AuroCADPlugin_3
+namespace SpiralStairPlugin
 {
     public class TopLandingModule : IGeometryCreator
     {

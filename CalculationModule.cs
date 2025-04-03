@@ -18,21 +18,22 @@ namespace SpiralStairPlugin
             var parameters = new StairParameters
             {
                 CenterPoleDia = input.CenterPoleDia,
-                OverallHeight = input.OverallHeight,
-                OutsideDia = input.OutsideDia,
-                RotationDeg = input.RotationDeg,
+                TotalRise = input.OverallHeight, // Maps to OverallHeight
+                OuterRadius = input.OutsideDia / 2.0, // Maps to OutsideDia
+                TotalRotation = input.RotationDeg, // Maps to RotationDeg
                 IsClockwise = input.IsClockwise,
-                NumTreads = (int)Math.Ceiling(input.OverallHeight / 9.5),
+                NumberOfTreads = (int)Math.Ceiling(input.OverallHeight / 9.5), // Maps to NumTreads
                 MidlandingIndex = input.OverallHeight > 151 ? 8 : -1
             };
 
-            parameters.RiserHeight = parameters.OverallHeight / parameters.NumTreads;
-            parameters.TreadAngle = parameters.MidlandingIndex >= 0 ? (parameters.RotationDeg - 90) / (parameters.NumTreads - 2) : parameters.RotationDeg / (parameters.NumTreads - 1);
+            // RiserHeight is read-only (maps to CalculatedRiseHeightPerTread), so calculate it directly
+            double riserHeight = parameters.TotalRise / parameters.NumberOfTreads;
+            parameters.TreadRotation = parameters.MidlandingIndex >= 0 ? (parameters.TotalRotation - 90) / (parameters.NumberOfTreads - 2) : parameters.TotalRotation / (parameters.NumberOfTreads - 1);
             parameters.WalklineRadius = (parameters.CenterPoleDia / 2) + 12;
-            parameters.ClearWidth = (parameters.OutsideDia / 2) - 1.5 - (parameters.CenterPoleDia / 2); // OutsideRadius - 1.5" - CenterPoleRadius
+            parameters.ClearWidth = (parameters.OuterRadius) - 1.5 - (parameters.CenterPoleDia / 2); // OuterRadius - 1.5" - CenterPoleRadius
 
-            double walklineWidth = parameters.WalklineRadius * (parameters.TreadAngle * Math.PI / 180);
-            parameters.IsCompliant = walklineWidth >= 6.75 && parameters.ClearWidth >= 26 && parameters.OverallHeight <= 78 * parameters.NumTreads;
+            double walklineWidth = parameters.WalklineRadius * (parameters.TreadRotation * Math.PI / 180);
+            parameters.IsCompliant = walklineWidth >= 6.75 && parameters.ClearWidth >= 26 && parameters.TotalRise <= 78 * parameters.NumberOfTreads;
             parameters.ComplianceMessage = "";
 
             double? suggestedPoleDia = null;
@@ -42,13 +43,13 @@ namespace SpiralStairPlugin
 
             if (walklineWidth < 6.75)
             {
-                double requiredRadius = 6.75 / (parameters.TreadAngle * Math.PI / 180);
+                double requiredRadius = 6.75 / (parameters.TreadRotation * Math.PI / 180);
                 double requiredPoleDia = (requiredRadius - 12) * 2;
                 var currentPipeIndex = Array.FindIndex(availablePipeSizes, p => Math.Abs(p.size - input.CenterPoleDia) < 0.01);
                 var nextPipe = availablePipeSizes.Skip(currentPipeIndex + 1).FirstOrDefault(p => p.size > requiredPoleDia);
                 double nextPipeDia = nextPipe.size > 0 ? nextPipe.size : availablePipeSizes.Last().size;
                 string nextPipeType = nextPipe.size > 0 ? nextPipe.type : availablePipeSizes.Last().type;
-                double requiredRotation = parameters.MidlandingIndex >= 0 ? (6.75 / parameters.WalklineRadius * 180 / Math.PI) * (parameters.NumTreads - 2) + 90 : (6.75 / parameters.WalklineRadius * 180 / Math.PI) * (parameters.NumTreads - 1);
+                double requiredRotation = parameters.MidlandingIndex >= 0 ? (6.75 / parameters.WalklineRadius * 180 / Math.PI) * (parameters.NumberOfTreads - 2) + 90 : (6.75 / parameters.WalklineRadius * 180 / Math.PI) * (parameters.NumberOfTreads - 1);
                 parameters.ComplianceMessage += $"R311.7.10.1: Walkline width {walklineWidth:F2} in < 6.75 in\n\n" +
                                                 $"RECOMMENDATION: Increase center pole diameter to {nextPipeDia:F2} in ({nextPipeType})\n" +
                                                 $"RECOMMENDATION: Or increase total rotation to {requiredRotation:F2}°\n";
@@ -62,10 +63,10 @@ namespace SpiralStairPlugin
                                                 $"RECOMMENDATION: Increase outside diameter to {requiredOutsideDia:F2} in\n";
                 suggestedOutsideDia = requiredOutsideDia;
             }
-            if (parameters.OverallHeight > 78 * parameters.NumTreads)
+            if (parameters.TotalRise > 78 * parameters.NumberOfTreads)
             {
-                double requiredHeight = 78 * parameters.NumTreads;
-                parameters.ComplianceMessage += $"R311.7.10.1: Headroom {(parameters.OverallHeight / parameters.NumTreads):F2} in < 78 in\n\n" +
+                double requiredHeight = 78 * parameters.NumberOfTreads;
+                parameters.ComplianceMessage += $"R311.7.10.1: Headroom {(parameters.TotalRise / parameters.NumberOfTreads):F2} in < 78 in\n\n" +
                                                 $"RECOMMENDATION: Reduce overall height to {requiredHeight:F2} in or adjust treads\n";
                 suggestedHeight = requiredHeight;
             }
@@ -74,6 +75,9 @@ namespace SpiralStairPlugin
             parameters.SuggestedOutsideDia = suggestedOutsideDia;
             parameters.SuggestedRotation = suggestedRotation;
             parameters.SuggestedHeight = suggestedHeight;
+
+            // Update calculated parameters after setting all values
+            parameters.UpdateCalculatedParameters();
 
             return parameters;
         }
